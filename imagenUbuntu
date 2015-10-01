@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# EN: This Script is used in order to install a GNU/Linux Image in a pen drive over OS X (Machintosh)
+# EN: The first argument is the path of the GNU/Linux image.
+
+# ES: Este Script se emplea para instalar una imágen GNU/Linux en un pen drive sobre OS X (Machintosh)
+# ES: El primer argumento con el que se carga este script es la ruta de la imagen GNU/Linux
+
+IMAGE=$1
+DMG_IMAGE="${IMAGE%%.*}.dmg"
+
+echo "IMAGE="$1
+echo "DMG_IMAGE="$DMG_IMAGE
+
+diskutil list
+
+echo
+echo "EN: In first place, write the name of pen drive unit.\nFor Example: disk2"
+echo "ES: En primer lugar, escriba el nombre de la unidad pen drive.\nPor ejemplo: disk2"
+echo 
+
+read -p "Write the unit name:"
+        echo    # (optional) move to a new line
+		while [  -z $REPLY ]; do
+			read -p "Incorrect device, please write the unit name again:"
+		done
+
+UNIDAD=$REPLY
+
+diskutil unmountDisk /dev/${UNIDAD}
+
+echo "EN: The image will be recorded to the unit: "${UNIDAD}
+echo "ES: La imagen se grabará en la unidad: "${UNIDAD} 
+
+# EN: Convert the ISO image to DMG format.
+# ES: Convertimos la imagen ISO al formato DMG.
+hdiutil convert -format UDRW -o ${DMG_IMAGE} ${IMAGE}
+
+echo "EN: Flashing ..."
+
+# EN: RECORD THE GNU/Linux Image to a flash device.
+# ES: Grabamos la imagen en la memoria USB.
+sudo dd if=${DMG_IMAGE} of=/dev/r${UNIDAD} bs=1m
+
+diskutil eject /dev/${UNIDAD}
+
+echo "Ready! / Listo!"
+
+
+
